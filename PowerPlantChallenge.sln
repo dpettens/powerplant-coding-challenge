@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPlantChallenge.WebApi", "src\PowerPlantChallenge.WebApi\PowerPlantChallenge.WebApi.csproj", "{DBB10BCD-3C8E-4FE3-A1E6-3991EE11AF77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPlantChallenge.WebApi.Tests", "PowerPlantChallenge.WebApi.Tests\PowerPlantChallenge.WebApi.Tests.csproj", "{FB150BC5-6164-467F-966A-6A99E49ED7E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPlantChallenge.WebApi.Tests", "tests\PowerPlantChallenge.WebApi.Tests\PowerPlantChallenge.WebApi.Tests.csproj", "{FB150BC5-6164-467F-966A-6A99E49ED7E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
