@@ -1,0 +1,29 @@
+name: Build and test app
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+env:
+  NETCORE_VERSION: 5.0.x
+  CONFIGURATION: 'Release'
+
+jobs:
+  build:
+    name: Build and Test App
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core SDK ${{ env.NETCORE_VERSION }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.NETCORE_VERSION }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
