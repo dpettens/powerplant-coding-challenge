@@ -310,6 +310,72 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             result.Should().Equal(expectedResult, ComparePowerPlantLoad);
         }
         
+        [TestMethod]
+        public void CalculateUnitCommitment_ExamplePayload2_ReturnsExpectedResult()
+        {
+            // Arrange
+            const decimal load = 480;
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 0), new List<PowerPlant>
+            {
+                new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredsomewhatsmaller", PowerPlantType.GasFired, 0.37m, 40, 210),
+                new("tj1", PowerPlantType.Turbojet, 0.3m, 0, 16),
+                new("windpark1", PowerPlantType.WindTurbine, 1, 0, 150),
+                new("windpark2", PowerPlantType.WindTurbine, 1, 0, 36)
+            });
+            
+            // Act  
+            var result = _service.CalculateUnitCommitment(productionPlan).ToList();
+            
+            // Assert
+            var expectedResult = new List<PowerPlantLoad>
+            {
+                new("windpark1", 0, 0, 0),
+                new("windpark2", 0, 0, 0),
+                new("gasfiredbig1", 100, 460, 380),
+                new("gasfiredbig2", 100, 460, 100),
+                new("gasfiredsomewhatsmaller", 40, 210, 0),
+                new("tj1", 0, 16, 0)
+            };
+
+            result.Sum(p => p.Power).Should().Be(load);
+            result.Should().Equal(expectedResult, ComparePowerPlantLoad);
+        }
+        
+        [TestMethod]
+        public void CalculateUnitCommitment_ExamplePayload3_ReturnsExpectedResult()
+        {
+            // Arrange
+            const decimal load = 910;
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60), new List<PowerPlant>
+            {
+                new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredsomewhatsmaller", PowerPlantType.GasFired, 0.37m, 40, 210),
+                new("tj1", PowerPlantType.Turbojet, 0.3m, 0, 16),
+                new("windpark1", PowerPlantType.WindTurbine, 1, 0, 150),
+                new("windpark2", PowerPlantType.WindTurbine, 1, 0, 36)
+            });
+            
+            // Act  
+            var result = _service.CalculateUnitCommitment(productionPlan).ToList();
+            
+            // Assert
+            var expectedResult = new List<PowerPlantLoad>
+            {
+                new("windpark1", 0, 90, 90),
+                new("windpark2", 0, 21.6m, 21.6m),
+                new("gasfiredbig1", 100, 460, 460),
+                new("gasfiredbig2", 100, 460, 338.4m),
+                new("gasfiredsomewhatsmaller", 40, 210, 0),
+                new("tj1", 0, 16, 0),
+            };
+
+            result.Sum(p => p.Power).Should().Be(load);
+            result.Should().Equal(expectedResult, ComparePowerPlantLoad);
+        }
+        
         private static bool ComparePowerPlantLoad(PowerPlantLoad p1, PowerPlantLoad p2)
         {
             return p1.Name == p2.Name && 
