@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PowerPlantChallenge.WebApi.Exceptions;
 using PowerPlantChallenge.WebApi.Models;
 using PowerPlantChallenge.WebApi.Services;
 
@@ -35,11 +36,11 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         }
         
         [TestMethod]
-        //TODO: change when custom exception
-        public void CalculateUnitCommitment_LoadIsLesserThanAllPMin_ThrowException()
+        public void CalculateUnitCommitment_LoadIsLesserThanAllPMin_ThrowImpossibleToSupplyException()
         {
             // Arrange
-            var productionPlan = new ProductionPlan(30, new Fuels(15, 50, 80), new List<PowerPlant>
+            const decimal load = 30;
+            var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
                 new("Gas", PowerPlantType.GasFired, 0.5m, 40, 100),
                 new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
@@ -49,16 +50,18 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             Action act = () => _service.CalculateUnitCommitment(productionPlan);
             
             // Assert
-            act.Should().Throw<Exception>()
-                .WithMessage("Impossible to supply this load because all power plants have a pmin greater than the requested load");
+            const decimal smallestPMin = 40;
+            act.Should().Throw<ImpossibleToSupplyException>()
+                .WithMessage($"Impossible to supply the requested ({load}) load \n " +
+                             $"Reason: All power plants have a PMin greater than the requested load (smallest PMin {smallestPMin})");
         }
         
         [TestMethod]
-        //TODO: change when custom exception
         public void CalculateUnitCommitment_LoadIsGreaterThanAllPMax_ThrowException()
         {
             // Arrange
-            var productionPlan = new ProductionPlan(400, new Fuels(15, 50, 80), new List<PowerPlant>
+            const decimal load = 400;
+            var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
                 new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
@@ -68,12 +71,13 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             Action act = () => _service.CalculateUnitCommitment(productionPlan);
             
             // Assert
-            act.Should().Throw<Exception>()
-                .WithMessage("Impossible to supply this load because the sum of all pmax is lesser than the requested load");
+            const decimal totalPMaxPossible = 380; // 100 * 80% + 300
+            act.Should().Throw<ImpossibleToSupplyException>()
+                .WithMessage($"Impossible to supply the requested ({load}) load \n " +
+                             $"Reason: The sum of all PMax is lesser than the requested load (total PMax {totalPMaxPossible})");
         }
 
         [TestMethod]
-        //TODO: change when custom exception
         public void CalculateUnitCommitment_LoadCanNotBeObtain_ThrowException()
         {
             // Arrange
@@ -88,8 +92,9 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             Action act = () => _service.CalculateUnitCommitment(productionPlan);
             
             // Assert
-            act.Should().Throw<Exception>()
-                .WithMessage("Impossible to supply this load because no combination of power plants allows to obtain it");
+            act.Should().Throw<ImpossibleToSupplyException>()
+                .WithMessage($"Impossible to supply the requested ({load}) load \n " +
+                             $"Reason: No combination of power plants allows to obtain it");
         }
         
         [TestMethod]

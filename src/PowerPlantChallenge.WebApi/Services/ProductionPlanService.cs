@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using PowerPlantChallenge.WebApi.Exceptions;
 using PowerPlantChallenge.WebApi.Models;
 using PowerPlantChallenge.WebApi.Validators;
 
@@ -38,17 +39,21 @@ namespace PowerPlantChallenge.WebApi.Services
                 .Select(p => new PowerPlantLoad(p.Name, p.Type, p.PMin, p.PMax, productionPlan.Fuels.WindPercentage, 0))
                 .ToList();
             
-            //TODO: create custom exception
             // Check if there is at least one power plant who has a minimum power lesser or equal than the requested load
             var smallestPMin = powerPlantLoadsByMeritOrder.Min(p => p.RealPMin);
             if (productionPlan.Load < smallestPMin)
-                throw new Exception("Impossible to supply this load because all power plants have a pmin greater than the requested load");
+                throw new ImpossibleToSupplyException(
+                    productionPlan.Load, 
+                    $"All power plants have a PMin greater than the requested load (smallest PMin {smallestPMin})"
+                );
             
-            //TODO: create custom exception
             // Check if the maximum real power of all power plants is greater or equal than the requested load
             var totalPMaxPossible = powerPlantLoadsByMeritOrder.Sum(p => p.RealPMax);
             if (productionPlan.Load > totalPMaxPossible)
-                throw new Exception("Impossible to supply this load because the sum of all pmax is lesser than the requested load");
+                throw new ImpossibleToSupplyException(
+                    productionPlan.Load, 
+                    $"The sum of all PMax is lesser than the requested load (total PMax {totalPMaxPossible})"
+                );
             
             // Find best output power for each plant
             var remainingLoadToPlan = productionPlan.Load;
@@ -66,11 +71,13 @@ namespace PowerPlantChallenge.WebApi.Services
                 // No more power to find
                 if (remainingLoadToPlan == 0) break;
             }
-
-            //TODO: create custom exception
+            
             // If there is some remaining load, it's not possible to find a solution
             if (remainingLoadToPlan > 0)
-                throw new Exception("Impossible to supply this load because no combination of power plants allows to obtain it");
+                throw new ImpossibleToSupplyException(
+                    productionPlan.Load, 
+                    "No combination of power plants allows to obtain it"
+                );
 
             return powerPlantLoadsByMeritOrder;
         }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PowerPlantChallenge.WebApi.Attributes;
 using PowerPlantChallenge.WebApi.Services;
 
 namespace PowerPlantChallenge.WebApi
@@ -24,10 +25,9 @@ namespace PowerPlantChallenge.WebApi
             services.AddScoped<IProductionPlanService, ProductionPlanService>();
             
             services.AddAutoMapper(typeof(Startup));
-            services.AddControllers().AddJsonOptions(x =>
-            {
-                x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
+            
+            services.AddControllers(o => o.Filters.Add<ExceptionFilter>())
+                    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             
             services.AddSwaggerGen(c =>
             {
