@@ -1,9 +1,11 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PowerPlantChallenge.WebApi.Services;
 
 namespace PowerPlantChallenge.WebApi
 {
@@ -19,7 +21,14 @@ namespace PowerPlantChallenge.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddScoped<IProductionPlanService, ProductionPlanService>();
+            
+            services.AddAutoMapper(typeof(Startup));
+            services.AddControllers().AddJsonOptions(x =>
+            {
+                x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "PowerPlantChallenge.WebApi", Version = "v1"});
@@ -33,7 +42,10 @@ namespace PowerPlantChallenge.WebApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PowerPlantChallenge.WebApi v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PowerPlantChallenge.WebApi v1");
+                });
             }
 
             app.UseHttpsRedirection();
