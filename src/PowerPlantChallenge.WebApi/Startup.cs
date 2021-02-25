@@ -48,7 +48,10 @@ namespace PowerPlantChallenge.WebApi
                 });
             }
 
-            app.UseHttpsRedirection();
+            // I remove the Https redirection in order to avoid ssl/tls certs issues when testing the app via docker
+            // With Docker, we need to create self-signed development certificates and trust its
+            // See https://docs.microsoft.com/en-us/aspnet/core/security/docker-https?view=aspnetcore-5.0
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 
