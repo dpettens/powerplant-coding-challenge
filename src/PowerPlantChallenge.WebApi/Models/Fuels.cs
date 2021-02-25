@@ -2,15 +2,15 @@
 {
     public class Fuels
     {
-        public Fuels(double gasPricePerMWh, double kerosenePricePerMWh, double windPercentage)
+        public Fuels(decimal gasPricePerMWh, decimal kerosenePricePerMWh, decimal windPercentage)
         {
             GasPricePerMWh = gasPricePerMWh;
             KerosenePricePerMWh = kerosenePricePerMWh;
             WindPercentage = windPercentage;
         }
 
-        public double GasPricePerMWh { get; }
-        public double KerosenePricePerMWh { get; }
-        public double WindPercentage { get; }
+        public decimal GasPricePerMWh { get; }
+        public decimal KerosenePricePerMWh { get; }
+        public decimal WindPercentage { get; }
     }
 }

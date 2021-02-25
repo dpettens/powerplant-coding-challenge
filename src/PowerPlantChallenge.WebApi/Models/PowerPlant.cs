@@ -2,7 +2,7 @@
 {
     public class PowerPlant
     {
-        public PowerPlant(string name, PowerPlantType type, double efficiency, double pMin, double pMax)
+        public PowerPlant(string name, PowerPlantType type, decimal efficiency, decimal pMin, decimal pMax)
         {
             Name = name;
             Type = type;
@@ -13,8 +13,8 @@
 
         public string Name { get; }
         public PowerPlantType Type { get; }
-        public double Efficiency { get; }
-        public double PMin { get; }
-        public double PMax { get; }
+        public decimal Efficiency { get; }
+        public decimal PMin { get; }
+        public decimal PMax { get; }
     }
 }

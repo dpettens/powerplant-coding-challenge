@@ -21,7 +21,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_NameIsNull_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant(null, PowerPlantType.WindTurbine, 0.5, 0, 100);
+            var powerPlant = new PowerPlant(null, PowerPlantType.WindTurbine, 0.5m, 0, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -35,7 +35,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_NameIsEmpty_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant(string.Empty, PowerPlantType.WindTurbine, 0.5, 0, 100);
+            var powerPlant = new PowerPlant(string.Empty, PowerPlantType.WindTurbine, 0.5m, 0, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -49,7 +49,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_TypeIsNotInEnum_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", (PowerPlantType) 4, 1.2, 0, 100);
+            var powerPlant = new PowerPlant("Test", (PowerPlantType) 4, 1.2m, 0, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -63,7 +63,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_EfficiencyIsNegative_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, -0.5, 0, 100);
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, -0.5m, 0, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -77,7 +77,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_EfficiencyIsGreaterThan1_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 1.2, 0, 100);
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 1.2m, 0, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -91,7 +91,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_PMinIsNegative_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.8, -20, 100);
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.8m, -20, 100);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -105,7 +105,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_PMaxIsSmallerThanPMin_ReturnsValidationError()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.8, 20, 10);
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.8m, 20, 10);
 
             // Act  
             var result = _validator.TestValidate(powerPlant);
@@ -136,7 +136,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         public void PowerPlantValidator_ValidPowerPlant_ReturnsNoValidationErrors()
         {
             // Arrange
-            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.5, 0, 100);
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0.5m, 0, 100);
         
             // Act  
             var result = _validator.TestValidate(powerPlant);

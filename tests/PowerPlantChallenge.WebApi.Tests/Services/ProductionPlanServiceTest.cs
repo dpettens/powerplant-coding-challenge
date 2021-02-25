@@ -41,8 +41,8 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             // Arrange
             var productionPlan = new ProductionPlan(30, new Fuels(15, 50, 80), new List<PowerPlant>
             {
-                new("Gas", PowerPlantType.GasFired, 0.5, 40, 100),
-                new("Gas", PowerPlantType.GasFired, 0.5, 100, 300)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 40, 100),
+                new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
             });
             
             // Act
@@ -61,7 +61,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             var productionPlan = new ProductionPlan(400, new Fuels(15, 50, 80), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
-                new("Gas", PowerPlantType.GasFired, 0.5, 100, 300)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
             });
             
             // Act
@@ -77,11 +77,11 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_LoadCanNotBeObtain_ThrowException()
         {
             // Arrange
-            const double load = 18;
+            const decimal load = 18;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
-                new("Gas", PowerPlantType.GasFired, 0.5, 20, 40),
-                new("Turbojet", PowerPlantType.Turbojet, 0.3, 0, 15)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 20, 40),
+                new("Turbojet", PowerPlantType.Turbojet, 0.3m, 0, 15)
             });
             
             // Act  
@@ -96,7 +96,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_ProductionPlanWithWindTurbines_WindPercentageIsTakenIntoAccount()
         {
             // Arrange
-            const double load = 105;
+            const decimal load = 105;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 70), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
@@ -121,12 +121,12 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_ProductionPlanWithDifferentEfficiency_EfficiencyIsRespected()
         {
             // Arrange
-            const double load = 350;
+            const decimal load = 350;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
-                new("Turbojet", PowerPlantType.Turbojet, 0.3, 0, 25),
+                new("Turbojet", PowerPlantType.Turbojet, 0.3m, 0, 25),
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
-                new("Gas", PowerPlantType.GasFired, 0.5, 100, 300)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
             });
             
             // Act  
@@ -148,12 +148,12 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_LoadIsADecimalNumber_SumOfPowerPlantsIsEqualToLoad()
         {
             // Arrange
-            const double load = 350.5;
+            const decimal load = 350.5m;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
-                new("Turbojet", PowerPlantType.Turbojet, 0.3, 0, 25),
+                new("Turbojet", PowerPlantType.Turbojet, 0.3m, 0, 25),
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
-                new("Gas", PowerPlantType.GasFired, 0.5, 100, 300)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 100, 300)
             });
             
             // Act  
@@ -162,7 +162,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             // Assert
             var expectedResult = new List<PowerPlantLoad>
             {
-                new("Wind", 0, 80, 80.5),
+                new("Wind", 0, 80, 80.5m),
                 new("Gas", 100, 300, 270),
                 new("Turbojet", 0, 25, 0)
             };
@@ -175,11 +175,11 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_WindTurbineRealPMaxHasTwoDigitsAfterDecimalPoint_RoundToOneDecimalIsRespected()
         {
             // Arrange
-            const double load = 150;
-            var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 85.5), new List<PowerPlant>
+            const decimal load = 150;
+            var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 85.5m), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 92),
-                new("Gas", PowerPlantType.GasFired, 0.5, 50, 100)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 50, 100)
             });
             
             // Act  
@@ -188,8 +188,8 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             // Assert
             var expectedResult = new List<PowerPlantLoad>
             {
-                new("Wind", 0, 78.6, 78.6),
-                new("Gas", 50, 100, 71.4)
+                new("Wind", 0, 78.6m, 78.6m),
+                new("Gas", 50, 100, 71.4m)
             };
 
             result.Sum(p => p.Power).Should().Be(load);
@@ -200,11 +200,11 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_LoadLesserThanGasPMin_NeedToUseTurbojet()
         {
             // Arrange
-            const double load = 20;
+            const decimal load = 20;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
-                new("Gas", PowerPlantType.GasFired, 0.5, 40, 100),
-                new("Turbojet", PowerPlantType.Turbojet, 0.3, 0, 25)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 40, 100),
+                new("Turbojet", PowerPlantType.Turbojet, 0.3m, 0, 25)
             });
             
             // Act  
@@ -225,13 +225,13 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_LoadForceToChangePowerOfOnePlantBecausePMinOfAnotherPlan_LoadIsRespected()
         {
             // Arrange
-            const double load = 145;
+            const decimal load = 145;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 80), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 100),
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 50),
-                new("Gas", PowerPlantType.GasFired, 0.5, 10, 20),
-                new("Gas", PowerPlantType.GasFired, 0.5, 10, 20)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 10, 20),
+                new("Gas", PowerPlantType.GasFired, 0.5m, 10, 20)
             });
             
             // Act  
@@ -254,12 +254,12 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         public void CalculateUnitCommitment_LoadForceToChangePowerOfMultiplePlantsBecausePMinOfOtherPlans_LoadIsRespected()
         {
             // Arrange
-            const double load = 80;
+            const decimal load = 80;
             var productionPlan = new ProductionPlan(load, new Fuels(15, 50, 100), new List<PowerPlant>
             {
                 new("Wind", PowerPlantType.WindTurbine, 1, 0, 40),
-                new("Gas", PowerPlantType.GasFired, 0.5, 25, 30),
-                new("Gas", PowerPlantType.GasFired, 0.35, 20, 50)
+                new("Gas", PowerPlantType.GasFired, 0.5m, 25, 30),
+                new("Gas", PowerPlantType.GasFired, 0.35m, 20, 50)
             });
             
             // Act  
@@ -271,6 +271,39 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
                 new("Wind", 0, 40, 35),
                 new("Gas", 25, 30, 25),
                 new("Gas", 20, 50, 20)
+            };
+
+            result.Sum(p => p.Power).Should().Be(load);
+            result.Should().Equal(expectedResult, ComparePowerPlantLoad);
+        }
+        
+        [TestMethod]
+        public void CalculateUnitCommitment_ExamplePayload1_ReturnsExpectedResult()
+        {
+            // Arrange
+            const decimal load = 480;
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60), new List<PowerPlant>
+            {
+                new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
+                new("gasfiredsomewhatsmaller", PowerPlantType.GasFired, 0.37m, 40, 210),
+                new("tj1", PowerPlantType.Turbojet, 0.3m, 0, 16),
+                new("windpark1", PowerPlantType.WindTurbine, 1, 0, 150),
+                new("windpark2", PowerPlantType.WindTurbine, 1, 0, 36)
+            });
+            
+            // Act  
+            var result = _service.CalculateUnitCommitment(productionPlan).ToList();
+            
+            // Assert
+            var expectedResult = new List<PowerPlantLoad>
+            {
+                new("windpark1", 0, 90, 90),
+                new("windpark2", 0, 21.6m, 21.6m),
+                new("gasfiredbig1", 100, 460, 368.4m),
+                new("gasfiredbig2", 100, 460, 0),
+                new("gasfiredsomewhatsmaller", 40, 210, 0),
+                new("tj1", 0, 16, 0),
             };
 
             result.Sum(p => p.Power).Should().Be(load);

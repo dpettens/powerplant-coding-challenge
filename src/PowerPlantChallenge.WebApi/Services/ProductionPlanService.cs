@@ -35,7 +35,7 @@ namespace PowerPlantChallenge.WebApi.Services
             var powerPlantLoadsByMeritOrder = productionPlan.PowerPlants
                 .OrderBy(p => CalculateMeritOrder(p, productionPlan.Fuels))
                 .ThenByDescending(p => p.PMax)
-                .Select(p => new PowerPlantLoad(p.Name, p.Type, p.PMin, p.PMax, productionPlan.Fuels.WindPercentage))
+                .Select(p => new PowerPlantLoad(p.Name, p.Type, p.PMin, p.PMax, productionPlan.Fuels.WindPercentage, 0))
                 .ToList();
             
             //TODO: create custom exception
@@ -62,6 +62,9 @@ namespace PowerPlantChallenge.WebApi.Services
 
                 remainingLoadToPlan = newRemainingLoadToPlan;
                 powerPlantLoadsByMeritOrder[i].ChangePower(power);
+
+                // No more power to find
+                if (remainingLoadToPlan == 0) break;
             }
 
             //TODO: create custom exception
@@ -75,7 +78,7 @@ namespace PowerPlantChallenge.WebApi.Services
         /// <summary>
         /// Calculate merit order of a specific power plant based on its efficiency and its fuel price
         /// </summary>
-        private static double CalculateMeritOrder(PowerPlant powerPlant, Fuels fuels)
+        private static decimal CalculateMeritOrder(PowerPlant powerPlant, Fuels fuels)
         {
             // Produce electricity from wind is free
             var pricePerMWh = powerPlant.Type switch
@@ -93,9 +96,13 @@ namespace PowerPlantChallenge.WebApi.Services
         /// <summary>
         /// Calculate how much power the plant will deliver in order to achieve the requested load
         /// </summary>
-        private static (double, double) CalculateOutputPowerPlant(PowerPlantLoad powerPlantLoad,
-            IEnumerable<PowerPlantLoad> previousPowerPlantLoads, double remainingLoadToPlan)
+        private static (decimal, decimal) CalculateOutputPowerPlant(PowerPlantLoad powerPlantLoad,
+            IEnumerable<PowerPlantLoad> previousPowerPlantLoads, decimal remainingLoadToPlan)
         {
+            // The request load is already supplied, so no need to power this plant
+            if (remainingLoadToPlan == 0)
+                return (0, 0);
+            
             // The load needed is between RealPMin and RealPMax so use the remaining load as load for this plant 
             if (powerPlantLoad.RealPMin <= remainingLoadToPlan && remainingLoadToPlan <= powerPlantLoad.RealPMax)
                 return (remainingLoadToPlan, 0);
@@ -124,7 +131,7 @@ namespace PowerPlantChallenge.WebApi.Services
         /// Check if it's possible to reduce this extra power on one or more previous power plants 
         /// </summary>
         private static bool CanAdaptPreviousPowerPlantLoads(IEnumerable<PowerPlantLoad> previousPowerPlantLoads, 
-            double extraPower)
+            decimal extraPower)
         {
             var remainingExtraPower = extraPower;
             
@@ -148,7 +155,7 @@ namespace PowerPlantChallenge.WebApi.Services
         /// Adapt previous power plants by removing the extra power of one or more plants
         /// </summary>
         private static void AdaptPreviousPowerPlantLoads(IEnumerable<PowerPlantLoad> previousPowerPlantLoads, 
-            double extraPower)
+            decimal extraPower)
         {
             var remainingExtraPower = extraPower;
             

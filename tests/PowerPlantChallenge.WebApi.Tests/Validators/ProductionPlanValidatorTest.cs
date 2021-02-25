@@ -97,7 +97,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
             // Arrange
             var productionPlan = new ProductionPlan(50, new Fuels(10, 10, 80), new List<PowerPlant>
             {
-                new("Test", PowerPlantType.WindTurbine, 0.5, 0, 100)
+                new("Test", PowerPlantType.WindTurbine, 0.5m, 0, 100)
             });
 
             // Act  
