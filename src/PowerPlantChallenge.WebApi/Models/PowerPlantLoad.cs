@@ -21,18 +21,36 @@ namespace PowerPlantChallenge.WebApi.Models
         }
 
         public string Name { get; }
+        
+        /// <summary>
+        /// This is the real minimum power that the power plant can produce
+        /// It is only different from PMin for wind turbine
+        /// </summary>
         public decimal RealPMin { get; }
+        
+        /// <summary>
+        /// This is the real maximum power that the power plant can produce
+        /// It is only different from PMin for wind turbine
+        /// </summary>
         public decimal RealPMax { get; }
+        
+        /// <summary>
+        /// This is the power that the power plant will generate for the production plan (0 = produce nothing)
+        /// </summary>
         public decimal Power { get; private set; }
 
-        public void ChangePower(decimal power)
+        /// <summary>
+        /// Adapt the current power that the power plant will generate to the new amount
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPower"/> is negative</exception>
+        public void ChangePower(decimal newPower)
         {
-            if (power < 0)
+            if (newPower < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(power), "power should not be negative");
+                throw new ArgumentOutOfRangeException(nameof(newPower), "power should not be negative");
             }
 
-            Power = power;
+            Power = newPower;
         }
         
         private static decimal CalculateRealPower(decimal power, PowerPlantType type, decimal windPercentage)

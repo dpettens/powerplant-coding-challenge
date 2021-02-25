@@ -74,6 +74,20 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         }
         
         [TestMethod]
+        public void FuelsValidator_Co2PricePerTonIsNegative_ReturnsValidationError()
+        {
+            // Arrange
+            var fuels = new Fuels(10, 10, 120, -10);
+
+            // Act  
+            var result = _validator.TestValidate(fuels);
+            
+            // Assert
+            result.IsValid.Should().BeFalse();
+            result.ShouldHaveValidationErrorFor(f => f.Co2PricePerTon);
+        }
+
+        [TestMethod]
         public void FuelsValidator_MultipleInvalidProps_ReturnsMultipleValidationErrors()
         {
             // Arrange

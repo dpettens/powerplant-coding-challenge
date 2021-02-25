@@ -283,11 +283,36 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         }
         
         [TestMethod]
+        public void CalculateUnitCommitment_GasIsMoreEfficientThanKeroseneButCo2PriceIsVeryHigh_KeroseneIsPrefered()
+        {
+            // Arrange
+            const decimal load = 25;
+            var productionPlan = new ProductionPlan(load, new Fuels(25, 30, 60, 87), new List<PowerPlant>
+            {
+                new("Gas", PowerPlantType.GasFired, 0.5m, 20, 100),
+                new("Turbojet", PowerPlantType.Turbojet, 0.4m, 0, 25)
+            });
+            
+            // Act  
+            var result = _service.CalculateUnitCommitment(productionPlan).ToList();
+            
+            // Assert
+            var expectedResult = new List<PowerPlantLoad>
+            {
+                new("Turbojet", 0, 25, 25),
+                new("Gas", 20, 100, 0)
+            };
+
+            result.Sum(p => p.Power).Should().Be(load);
+            result.Should().Equal(expectedResult, ComparePowerPlantLoad);
+        }
+        
+        [TestMethod]
         public void CalculateUnitCommitment_ExamplePayload1_ReturnsExpectedResult()
         {
             // Arrange
             const decimal load = 480;
-            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60), new List<PowerPlant>
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60, 20), new List<PowerPlant>
             {
                 new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
                 new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
@@ -320,7 +345,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         {
             // Arrange
             const decimal load = 480;
-            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 0), new List<PowerPlant>
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 0, 20), new List<PowerPlant>
             {
                 new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
                 new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
@@ -353,7 +378,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
         {
             // Arrange
             const decimal load = 910;
-            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60), new List<PowerPlant>
+            var productionPlan = new ProductionPlan(load, new Fuels(13.4m, 50.8m, 60, 20), new List<PowerPlant>
             {
                 new("gasfiredbig1", PowerPlantType.GasFired, 0.53m, 100, 460),
                 new("gasfiredbig2", PowerPlantType.GasFired, 0.53m, 100, 460),
@@ -380,7 +405,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             result.Sum(p => p.Power).Should().Be(load);
             result.Should().Equal(expectedResult, ComparePowerPlantLoad);
         }
-        
+
         private static bool ComparePowerPlantLoad(PowerPlantLoad p1, PowerPlantLoad p2)
         {
             return p1.Name == p2.Name && 

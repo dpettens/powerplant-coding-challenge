@@ -10,6 +10,7 @@ namespace PowerPlantChallenge.WebApi.Validators
             RuleFor(f => f.GasPricePerMWh).GreaterThanOrEqualTo(0);
             RuleFor(f => f.KerosenePricePerMWh).GreaterThanOrEqualTo(0);
             RuleFor(f => f.WindPercentage).InclusiveBetween(0, 100);
+            RuleFor(f => f.Co2PricePerTon).GreaterThanOrEqualTo(0);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace PowerPlantChallenge.WebApi.Services
 {
     public class ProductionPlanService : IProductionPlanService
     {
+        private const decimal Co2GeneratedPerMWh = 0.3m;
         private readonly ILogger<ProductionPlanService> _logger;
 
         public ProductionPlanService(ILogger<ProductionPlanService> logger)
@@ -34,7 +35,7 @@ namespace PowerPlantChallenge.WebApi.Services
 
             // Create PowerPlantLoad and order it by merit order and maximum power
             var powerPlantLoadsByMeritOrder = productionPlan.PowerPlants
-                .OrderBy(p => CalculateMeritOrder(p, productionPlan.Fuels))
+                .OrderBy(p => CalculatePricePerMWh(p, productionPlan.Fuels))
                 .ThenByDescending(p => p.PMax)
                 .Select(p => new PowerPlantLoad(p.Name, p.Type, p.PMin, p.PMax, productionPlan.Fuels.WindPercentage, 0))
                 .ToList();
@@ -83,20 +84,21 @@ namespace PowerPlantChallenge.WebApi.Services
         }
 
         /// <summary>
-        /// Calculate merit order of a specific power plant based on its efficiency and its fuel price
+        /// Calculate price per MWh of a specific power plant based on its efficiency, fuel price and Co2 for gas-fired
         /// </summary>
-        private static decimal CalculateMeritOrder(PowerPlant powerPlant, Fuels fuels)
+        private static decimal CalculatePricePerMWh(PowerPlant powerPlant, Fuels fuels)
         {
             // Produce electricity from wind is free
+            // Only Gas-fired power plant can generate Co2
             var pricePerMWh = powerPlant.Type switch
             {
                 PowerPlantType.WindTurbine => 0,
-                PowerPlantType.GasFired => fuels.GasPricePerMWh,
+                PowerPlantType.GasFired => fuels.GasPricePerMWh + Co2GeneratedPerMWh * fuels.Co2PricePerTon,
                 PowerPlantType.Turbojet => fuels.KerosenePricePerMWh,
                 _ => throw new ArgumentOutOfRangeException(nameof(powerPlant),
                     $"{powerPlant.Type} is an unknown power plant type")
             };
-            
+
             return pricePerMWh / powerPlant.Efficiency;
         }
         
