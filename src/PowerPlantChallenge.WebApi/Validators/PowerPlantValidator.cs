@@ -9,7 +9,7 @@ namespace PowerPlantChallenge.WebApi.Validators
         {
             RuleFor(p => p.Name).NotEmpty();
             RuleFor(p => p.Type).IsInEnum();
-            RuleFor(p => p.Efficiency).InclusiveBetween(0, 1);
+            RuleFor(p => p.Efficiency).GreaterThan(0).LessThanOrEqualTo(1);
             RuleFor(p => p.PMin).GreaterThanOrEqualTo(0);
             RuleFor(p => p.PMax).GreaterThanOrEqualTo(p => p.PMin);
         }

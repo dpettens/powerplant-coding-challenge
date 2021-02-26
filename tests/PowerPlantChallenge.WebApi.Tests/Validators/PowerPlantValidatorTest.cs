@@ -74,6 +74,20 @@ namespace PowerPlantChallenge.WebApi.Tests.Validators
         }
         
         [TestMethod]
+        public void PowerPlantValidator_EfficiencyIsZero_ReturnsValidationError()
+        {
+            // Arrange
+            var powerPlant = new PowerPlant("Test", PowerPlantType.WindTurbine, 0, 0, 100);
+
+            // Act  
+            var result = _validator.TestValidate(powerPlant);
+            
+            // Assert
+            result.IsValid.Should().BeFalse();
+            result.ShouldHaveValidationErrorFor(p => p.Efficiency);
+        }
+        
+        [TestMethod]
         public void PowerPlantValidator_EfficiencyIsGreaterThan1_ReturnsValidationError()
         {
             // Arrange
