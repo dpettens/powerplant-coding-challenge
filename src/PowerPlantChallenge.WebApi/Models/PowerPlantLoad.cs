@@ -23,24 +23,24 @@ namespace PowerPlantChallenge.WebApi.Models
         public string Name { get; }
         
         /// <summary>
-        /// This is the real minimum power that the power plant can produce
+        /// This is the real minimum power that the powerplant can produce
         /// It is only different from PMin for wind turbine
         /// </summary>
         public decimal RealPMin { get; }
         
         /// <summary>
-        /// This is the real maximum power that the power plant can produce
+        /// This is the real maximum power that the powerplant can produce
         /// It is only different from PMin for wind turbine
         /// </summary>
         public decimal RealPMax { get; }
         
         /// <summary>
-        /// This is the power that the power plant will generate for the production plan (0 = produce nothing)
+        /// This is the power that the powerplant will generate for the production plan (0 = produce nothing)
         /// </summary>
         public decimal Power { get; private set; }
 
         /// <summary>
-        /// Adapt the current power that the power plant will generate to the new amount
+        /// Adapt the current power that the powerplant will generate to the new amount
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPower"/> is negative</exception>
         public void ChangePower(decimal newPower)

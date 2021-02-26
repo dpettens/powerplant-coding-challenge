@@ -53,7 +53,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             const decimal smallestPMin = 40;
             act.Should().Throw<ImpossibleToSupplyException>()
                 .WithMessage($"Impossible to supply the requested ({load}) load \n " +
-                             $"Reason: All power plants have a PMin greater than the requested load (smallest PMin {smallestPMin})");
+                             $"Reason: All powerplants have a PMin greater than the requested load (smallest PMin {smallestPMin})");
         }
         
         [TestMethod]
@@ -94,7 +94,7 @@ namespace PowerPlantChallenge.WebApi.Tests.Services
             // Assert
             act.Should().Throw<ImpossibleToSupplyException>()
                 .WithMessage($"Impossible to supply the requested ({load}) load \n " +
-                             $"Reason: No combination of power plants allows to obtain it");
+                             $"Reason: No combination of powerplants allows to obtain it");
         }
         
         [TestMethod]

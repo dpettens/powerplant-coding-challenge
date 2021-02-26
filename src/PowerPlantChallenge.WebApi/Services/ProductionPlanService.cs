@@ -20,7 +20,7 @@ namespace PowerPlantChallenge.WebApi.Services
         }
         
         /// <summary>
-        /// Calculate the output power for each power plants in order to supply the requested load
+        /// Calculate the output power for each powerplant in order to supply the requested load
         /// </summary>
         public IEnumerable<PowerPlantLoad> CalculateUnitCommitment(ProductionPlan productionPlan)
         {
@@ -40,15 +40,15 @@ namespace PowerPlantChallenge.WebApi.Services
                 .Select(p => new PowerPlantLoad(p.Name, p.Type, p.PMin, p.PMax, productionPlan.Fuels.WindPercentage, 0))
                 .ToList();
             
-            // Check if there is at least one power plant who has a minimum power lesser or equal than the requested load
+            // Check if there is at least one powerplant which has a minimum power less than or equal to the requested load
             var smallestPMin = powerPlantLoadsByMeritOrder.Min(p => p.RealPMin);
             if (productionPlan.Load < smallestPMin)
                 throw new ImpossibleToSupplyException(
                     productionPlan.Load, 
-                    $"All power plants have a PMin greater than the requested load (smallest PMin {smallestPMin})"
+                    $"All powerplants have a PMin greater than the requested load (smallest PMin {smallestPMin})"
                 );
             
-            // Check if the maximum real power of all power plants is greater or equal than the requested load
+            // Check if the maximum real power of all powerplants is greater than or equal to the requested load
             var totalPMaxPossible = powerPlantLoadsByMeritOrder.Sum(p => p.RealPMax);
             if (productionPlan.Load > totalPMaxPossible)
                 throw new ImpossibleToSupplyException(
@@ -56,7 +56,7 @@ namespace PowerPlantChallenge.WebApi.Services
                     $"The sum of all PMax is lesser than the requested load (total PMax {totalPMaxPossible})"
                 );
             
-            // Find best output power for each plant
+            // Find best output power for each powerplant
             var remainingLoadToPlan = productionPlan.Load;
             for(var i = 0; i < powerPlantLoadsByMeritOrder.Count; i++)
             {
@@ -77,77 +77,77 @@ namespace PowerPlantChallenge.WebApi.Services
             if (remainingLoadToPlan > 0)
                 throw new ImpossibleToSupplyException(
                     productionPlan.Load, 
-                    "No combination of power plants allows to obtain it"
+                    "No combination of powerplants allows to obtain it"
                 );
 
             return powerPlantLoadsByMeritOrder;
         }
 
         /// <summary>
-        /// Calculate price per MWh of a specific power plant based on its efficiency, fuel price and Co2 for gas-fired
+        /// Calculate price per MWh of a specific powerplant based on its efficiency, fuel price and Co2 for gas-fired
         /// </summary>
         private static decimal CalculatePricePerMWh(PowerPlant powerPlant, Fuels fuels)
         {
             // Produce electricity from wind is free
-            // Only Gas-fired power plant can generate Co2
+            // Only Gas-fired powerplant can generate Co2
             var pricePerMWh = powerPlant.Type switch
             {
                 PowerPlantType.WindTurbine => 0,
                 PowerPlantType.GasFired => fuels.GasPricePerMWh + Co2GeneratedPerMWh * fuels.Co2PricePerTon,
                 PowerPlantType.Turbojet => fuels.KerosenePricePerMWh,
                 _ => throw new ArgumentOutOfRangeException(nameof(powerPlant),
-                    $"{powerPlant.Type} is an unknown power plant type")
+                    $"{powerPlant.Type} is an unknown powerplant type")
             };
 
             return pricePerMWh / powerPlant.Efficiency;
         }
         
         /// <summary>
-        /// Calculate how much power the plant will deliver in order to achieve the requested load
+        /// Calculate how much power the powerplant will deliver in order to achieve the requested load
         /// </summary>
         private static (decimal, decimal) CalculateOutputPowerPlant(PowerPlantLoad powerPlantLoad,
             IEnumerable<PowerPlantLoad> previousPowerPlantLoads, decimal remainingLoadToPlan)
         {
-            // The request load is already supplied, so no need to power this plant
+            // The request load is already supplied, so no need to power this powerplant
             if (remainingLoadToPlan == 0)
                 return (0, 0);
             
-            // The load needed is between RealPMin and RealPMax so use the remaining load as load for this plant 
+            // The load needed is between RealPMin and RealPMax so use the remaining load as load for this powerplant 
             if (powerPlantLoad.RealPMin <= remainingLoadToPlan && remainingLoadToPlan <= powerPlantLoad.RealPMax)
                 return (remainingLoadToPlan, 0);
 
-            // The load needed is greater than RealPMax of the plant
+            // The load needed is greater than RealPMax of the powerplant
             // So use maximum power of the plan and subtract it from the remaining
             if (remainingLoadToPlan > powerPlantLoad.RealPMax)
                 return (powerPlantLoad.RealPMax, remainingLoadToPlan - powerPlantLoad.RealPMax);
             
-            // The load needed is lesser than RealPMin of the plant
-            // Calculate extra power already planned
+            // The load needed is lesser than RealPMin of the powerplant
+            // Calculate the extra power produced by using the RealPMin of this powerplant
             var extraPower = powerPlantLoad.RealPMin - remainingLoadToPlan;
             var previousPowerPlantLoadsList = previousPowerPlantLoads.ToList();
             
-            // Check if we can remove this extra power from previous plants calculated
-            // If not don't use this power plant for the load
+            // Check if we can remove this extra power from previous powerplants already calculated
+            // If not don't use this powerplant for the load
             if (!CanAdaptPreviousPowerPlantLoads(previousPowerPlantLoadsList, extraPower))
                 return (0, remainingLoadToPlan);
 
-            // Adapt the powers of previous power plants to remove the extra power and use the RealPMin for this plant
+            // Adapt the powers of previous powerplants to remove the extra power and use the RealPMin for this powerplant
             AdaptPreviousPowerPlantLoads(previousPowerPlantLoadsList, extraPower);
             return (powerPlantLoad.RealPMin, 0);
         }
 
         /// <summary>
-        /// Check if it's possible to reduce this extra power on one or more previous power plants 
+        /// Check if it's possible to reduce this extra power on one or more previous powerplants 
         /// </summary>
         private static bool CanAdaptPreviousPowerPlantLoads(IEnumerable<PowerPlantLoad> previousPowerPlantLoads, 
             decimal extraPower)
         {
             var remainingExtraPower = extraPower;
             
-            // Start from the last calculated power plant because it's the least efficient 
+            // Start from the last calculated powerplant because it's the least efficient 
             foreach (var powerPlantLoad in previousPowerPlantLoads.Reverse())
             {
-                // Check if the power of the plant can be decreased the remaining extra power
+                // Check if the power of the powerplant can be decreased the remaining extra power
                 var differencePower = powerPlantLoad.Power - remainingExtraPower;
                 if (differencePower >= powerPlantLoad.RealPMin)
                     return true;
@@ -156,22 +156,22 @@ namespace PowerPlantChallenge.WebApi.Services
                 remainingExtraPower -= powerPlantLoad.Power - powerPlantLoad.RealPMin;
             }
 
-            // If the remaining extra power > 0, it's not possible to adapt previous plants
+            // If the remaining extra power > 0, it's not possible to adapt previous powerplants
             return remainingExtraPower == 0;
         }
 
         /// <summary>
-        /// Adapt previous power plants by removing the extra power of one or more plants
+        /// Adapt power by removing the extra power on one or more of the previous powerplants
         /// </summary>
         private static void AdaptPreviousPowerPlantLoads(IEnumerable<PowerPlantLoad> previousPowerPlantLoads, 
             decimal extraPower)
         {
             var remainingExtraPower = extraPower;
             
-            // Start from the last calculated power plant because it's the least efficient 
+            // Start from the last calculated powerplant because it's the least efficient 
             foreach (var powerPlantLoad in previousPowerPlantLoads.Reverse())
             {
-                // If the power of the plant can be decreased the remaining extra power
+                // If the power of the powerplant can be decreased the remaining extra power
                 // Reduce it with this amount and end the loop
                 var differencePower = powerPlantLoad.Power - remainingExtraPower;
                 if (differencePower >= powerPlantLoad.RealPMin)
@@ -180,7 +180,7 @@ namespace PowerPlantChallenge.WebApi.Services
                     return;
                 }
                 
-                // If not, reduce the plant to its minimum
+                // If not, reduce the powerplant to its minimum
                 // Subtract the difference between actual power and its minimum
                 remainingExtraPower -= powerPlantLoad.Power - powerPlantLoad.RealPMin;
                 powerPlantLoad.ChangePower(powerPlantLoad.RealPMin);
